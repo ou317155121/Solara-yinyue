@@ -1,85 +1,58 @@
 const PUBLIC_PATH_PATTERNS = [/^\/login(?:\/|$)/, /^\/api\/login(?:\/|$)/];
 const PUBLIC_FILE_EXTENSIONS = new Set([
-  ".css",
-  ".js",
-  ".png",
-  ".svg",
-  ".jpg",
-  ".jpeg",
-  ".gif",
-  ".webp",
-  ".ico",
-  ".txt",
-  ".map",
-  ".json",
-  ".woff",
-  ".woff2",
+  ".css", ".js", ".png", ".svg", ".jpg", ".jpeg", ".gif", ".webp",
+  ".ico", ".txt", ".map", ".json", ".woff", ".woff2"
 ]);
 
-function hasPublicExtension(pathname: string): boolean {
+function hasPublicExtension(pathname) {
   const lastDotIndex = pathname.lastIndexOf(".");
-  if (lastDotIndex === -1) {
-    return false;
-  }
-  const extension = pathname.slice(lastDotIndex).toLowerCase();
-  return PUBLIC_FILE_EXTENSIONS.has(extension);
+  if (lastDotIndex === -1) return false;
+  const ext = pathname.slice(lastDotIndex).toLowerCase();
+  return PUBLIC_FILE_EXTENSIONS.has(ext);
 }
 
-function isPublicPath(pathname: string): boolean {
-  return (
-    PUBLIC_PATH_PATTERNS.some((pattern) => pattern.test(pathname)) ||
-    hasPublicExtension(pathname)
-  );
+function isPublicPath(pathname) {
+  return PUBLIC_PATH_PATTERNS.some(p => p.test(pathname)) || hasPublicExtension(pathname);
 }
 
-async function authMiddleware(context: any) {
-  const { request, env } = context;
+async function authMiddleware(context) {
+  const { request, env, next } = context;
   const password = env.PASSWORD;
 
-  // 未设置密码则直接放行
-  if (!password || typeof password !== "string") {
-    return context.next();
-  }
+  if (!password) return next();
 
   const url = new URL(request.url);
   const pathname = url.pathname;
 
-  // 放行公开路径和静态资源
-  if (isPublicPath(pathname)) {
-    return context.next();
-  }
+  if (isPublicPath(pathname)) return next();
 
   // 解析 Cookie
-  const cookieHeader = request.headers.get("Cookie") || "";
-  const cookies: Record<string, string> = {};
-  cookieHeader.split(";").forEach((part) => {
-    const [key, ...rest] = part.trim().split("=");
-    if (key) cookies[key] = rest.join("=");
-  });
+  const cookies = request.headers.get("cookie") || "";
+  const authToken = cookies.split('; ').find(row => row.startsWith('auth='))?.split('=')[1];
 
-  // 验证登录状态
-  if (cookies.auth && cookies.auth === btoa(password)) {
-    return context.next();
+  if (authToken === btoa(password)) {
+    return next();
   }
 
-  // 未登录 → 跳转到登录页
+  // 未登录 → 跳去登录页
   return Response.redirect(new URL("/login", url).toString(), 302);
 }
 
-async function i18nMiddleware(context: any) {
+async function i18nMiddleware(context) {
   const { env, next } = context;
-  const response = await next();
-  const language = env.language || env.LANGUAGE;
-  
-  if (language === "ENG" && response.headers.get("content-type")?.includes("text/html")) {
-    return new HTMLRewriter().on("head", {
-      element(element: any) {
-        element.prepend(`<script>window.SITE_LANGUAGE = "ENG";</script>`, { html: true });
-      }
-    }).transform(response);
+  const res = await next();
+  const lang = env.language || env.LANGUAGE;
+
+  if (lang === "ENG" && res.headers.get("content-type")?.includes("text/html")) {
+    return new HTMLRewriter()
+      .on("head", {
+        element(e) {
+          e.prepend(`<script>window.SITE_LANGUAGE="ENG";</script>`, { html: true });
+        }
+      })
+      .transform(res);
   }
-  
-  return response;
+  return res;
 }
 
 export const onRequest = [authMiddleware, i18nMiddleware];
