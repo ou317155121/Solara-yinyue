@@ -36,36 +36,34 @@ async function authMiddleware(context: any) {
   const { request, env } = context;
   const password = env.PASSWORD;
 
-  if (typeof password !== "string") {
+  // 未设置密码则直接放行
+  if (!password || typeof password !== "string") {
     return context.next();
   }
 
   const url = new URL(request.url);
   const pathname = url.pathname;
+
+  // 放行公开路径和静态资源
   if (isPublicPath(pathname)) {
     return context.next();
   }
 
+  // 解析 Cookie
   const cookieHeader = request.headers.get("Cookie") || "";
   const cookies: Record<string, string> = {};
   cookieHeader.split(";").forEach((part) => {
-    const separatorIndex = part.indexOf("=");
-    if (separatorIndex === -1) {
-      return;
-    }
-    const key = part.slice(0, separatorIndex).trim();
-    const value = part.slice(separatorIndex + 1).trim();
-    if (key) {
-      cookies[key] = value;
-    }
+    const [key, ...rest] = part.trim().split("=");
+    if (key) cookies[key] = rest.join("=");
   });
 
+  // 验证登录状态
   if (cookies.auth && cookies.auth === btoa(password)) {
     return context.next();
   }
 
-  const loginUrl = new URL("/login", url);
-  return Response.redirect(loginUrl.toString(), 302);
+  // 未登录 → 跳转到登录页
+  return Response.redirect(new URL("/login", url).toString(), 302);
 }
 
 async function i18nMiddleware(context: any) {
