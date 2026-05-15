@@ -1,27 +1,21 @@
-export async function onRequest(context) {
+export async function onRequest(context: any) {
   const { request, env, next } = context;
   const url = new URL(request.url);
   const path = url.pathname;
 
-  // ==============================================
-  // 1. 放行所有静态资源（这是防止闪烁的关键）
-  // ==============================================
+  // 放行静态资源和根目录的 login.html
   const staticFiles = /\.(css|js|png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|json|map|txt)$/;
-  if (staticFiles.test(path)) {
+  if (staticFiles.test(path) || path === "/login.html") {
     return next();
   }
 
-  // ==============================================
-  // 2. 没有密码直接放行
-  // ==============================================
+  // 没有设置密码，直接放行
   const correctPassword = env.PASSWORD;
   if (!correctPassword) {
     return next();
   }
 
-  // ==============================================
-  // 3. 检查是否已登录
-  // ==============================================
+  // 检查登录状态
   const cookie = request.headers.get("cookie") || "";
   const isLoggedIn = cookie.includes(`auth_valid=1`);
 
@@ -29,9 +23,7 @@ export async function onRequest(context) {
     return next();
   }
 
-  // ==============================================
-  // 4. 处理密码提交
-  // ==============================================
+  // 处理密码提交
   if (request.method === "POST") {
     try {
       const formData = await request.formData();
@@ -49,16 +41,14 @@ export async function onRequest(context) {
     } catch (e) {}
   }
 
-  // ==============================================
-  // 5. 显示密码框（永远不跳转，所以绝对不闪）
-  // ==============================================
+  // 直接在当前页面显示登录框，不跳转
   return new Response(renderLoginForm(), {
     headers: { "Content-Type": "text/html; charset=utf-8" },
   });
 }
 
 // 登录框 HTML
-function renderLoginForm() {
+function renderLoginForm(): string {
   return `
   <!DOCTYPE html>
   <html>
