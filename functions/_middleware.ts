@@ -3,21 +3,21 @@ export async function onRequest(context: any) {
   const url = new URL(request.url);
   const path = url.pathname;
 
-  // 放行静态资源和根目录的 login.html
+  // 放行静态资源
   const staticFiles = /\.(css|js|png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|json|map|txt)$/;
-  if (staticFiles.test(path) || path === "/login.html") {
+  if (staticFiles.test(path)) {
     return next();
   }
 
-  // 没有设置密码，直接放行
+  // 没设置密码直接放行
   const correctPassword = env.PASSWORD;
   if (!correctPassword) {
     return next();
   }
 
-  // 检查登录状态
+  // 检查是否登录
   const cookie = request.headers.get("cookie") || "";
-  const isLoggedIn = cookie.includes(`auth_valid=1`);
+  const isLoggedIn = cookie.includes("auth_valid=1");
 
   if (isLoggedIn) {
     return next();
@@ -41,13 +41,12 @@ export async function onRequest(context: any) {
     } catch (e) {}
   }
 
-  // 直接在当前页面显示登录框，不跳转
+  // 直接显示登录页，永不跳转，永不闪烁
   return new Response(renderLoginForm(), {
     headers: { "Content-Type": "text/html; charset=utf-8" },
   });
 }
 
-// 登录框 HTML
 function renderLoginForm(): string {
   return `
   <!DOCTYPE html>
