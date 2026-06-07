@@ -2,550 +2,396 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Solara</title>
-    <meta name="apple-mobile-web-app-title" content="Solara">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
-    <link rel="shortcut icon" href="/favicon.png">
-    <link rel="mask-icon" href="/favicon.svg" color="#5bbad5">
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
-    <link rel="apple-touch-icon-precomposed" sizes="180x180" href="/favicon.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
-    <script src="js/i18n.js"></script>
-    <script>
-        (function () {
-            const ua = navigator.userAgent || "";
-            const isMobileUA = /android|iphone|ipad|ipod|mobile|blackberry|phone|opera mini|windows phone/i.test(ua);
-            const isSmallScreen = typeof window.matchMedia === "function" && window.matchMedia("(max-width: 820px)").matches;
-            const isMobile = isMobileUA || isSmallScreen;
-            window.__SOLARA_IS_MOBILE = isMobile;
-            if (!isMobile) {
-                document.documentElement.classList.add("desktop-view");
-                const desktopLink = document.createElement("link");
-                desktopLink.rel = "stylesheet";
-                desktopLink.href = "css/desktop.css";
-                desktopLink.id = "desktopStylesheet";
-                document.head.appendChild(desktopLink);
-                return;
-            }
-            document.documentElement.classList.add("mobile-view");
-            const link = document.createElement("link");
-            link.rel = "stylesheet";
-            link.href = "css/mobile.css";
-            link.id = "mobileStylesheet";
-            document.head.appendChild(link);
-            const setViewportUnit = () => {
-                const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-                document.documentElement.style.setProperty("--mobile-vh", `${viewportHeight}px`);
-            };
-
-            const applyBodyClass = () => {
-                if (document.body) {
-                    document.body.classList.add("mobile-view");
-                    setViewportUnit();
-                }
-            };
-            if (document.readyState === "loading") {
-                document.addEventListener("DOMContentLoaded", applyBodyClass, { once: true });
-            } else {
-                applyBodyClass();
-            }
-
-            window.addEventListener("resize", setViewportUnit);
-            window.addEventListener("orientationchange", setViewportUnit);
-            if (window.visualViewport) {
-                window.visualViewport.addEventListener("resize", setViewportUnit);
-                window.visualViewport.addEventListener("scroll", setViewportUnit);
-            }
-
-            setViewportUnit();
-        })();
-    </script>
-    <style id="safari-ios-26-fix">
-        /* --- Safari iOS 26 Fix --- */
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            overflow-x: hidden;
-            box-sizing: border-box;
-        }
-        .login-shell {
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>过来人音乐 · 尽享听觉上的盛宴</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *{font-family:'Inter',sans-serif;}
+        body{touch-action: pan-y pan-x;background:linear-gradient(145deg,#FFF8F3,#FCE7F3 35%,#F9A8D4 70%,#D8B4A0);min-height:100vh;padding-bottom:32px;position:relative;}
+        body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 30% 40%,rgba(255,245,250,.5) 0%,transparent 70%);pointer-events:none;z-index:0;}
+        .marquee-lux{position:fixed;top:0;left:0;width:100%;background:rgba(255,248,243,.88);backdrop-filter:blur(18px);z-index:110;padding:10px 0;border-bottom:1px solid rgba(0,0,0,.06);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.03);}
+        .marquee-container{position:relative;width:100%;overflow:hidden;white-space:nowrap;}
+        .marquee-track{display:inline-flex;animation:marqueeFlow 32s linear infinite;will-change:transform;}
+        .marquee-text{display:inline-block;background:linear-gradient(105deg,rgba(249,168,212,.25),rgba(216,180,160,.2));padding:6px 32px;border-radius:60px;font-size:0.85rem;font-weight:500;color:#2D1B2E;letter-spacing:0.3px;border:0.5px solid rgba(255,255,255,.6);box-shadow:0 2px 6px rgba(0,0,0,.02);white-space:nowrap;}
+        @keyframes marqueeFlow{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+        @media (max-width:640px){.marquee-text{padding:5px 20px;font-size:0.7rem;}}
+        .main-container{padding-top:92px;position:relative;z-index:2;}
+        
+        .hero-banner{position:relative;margin-bottom:1.8rem;padding:0.5rem 1rem;border-radius:48px;text-align:center;overflow:visible;}
+        .banner-deco{position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:1;}
+        .banner-deco .note{position:absolute;font-size:1.6rem;opacity:0.5;}
+        .banner-deco .star{position:absolute;font-size:1.2rem;opacity:0.5;}
+        .banner-deco .curve{position:absolute;width:80px;height:40px;border:2px solid rgba(255,200,220,0.4);border-top:none;border-right:none;border-radius:0 0 0 60px;transform:rotate(-15deg);opacity:0.5;}
+        
+        .glow-title{position:relative;z-index:10;font-family:'Caveat','Pacifico',cursive;font-size:3.5rem;font-weight:800;letter-spacing:0.04em;background:linear-gradient(135deg,#FFE6F0,#FFB3D9,#F9A8D4,#E879F9,#C084FC);background-size:300% 300%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:textShine 4s ease infinite;text-shadow:none;display:inline-block;padding:0 0.2rem;}
+        @keyframes textShine{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
+        .banner-sub{position:relative;z-index:10;text-align:center;color:rgba(80,50,70,0.85);font-size:0.85rem;letter-spacing:1px;margin-top:6px;font-weight:600;background:rgba(255,245,250,0.4);display:inline-block;padding:4px 20px;border-radius:60px;margin-left:auto;margin-right:auto;width:auto;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+        @media (max-width:640px){.glow-title{font-size:2.6rem;}.hero-banner{padding:0.2rem 0.5rem;margin-bottom:1rem;}.banner-deco .note{font-size:1.2rem;}.banner-deco .star{font-size:1rem;}.banner-sub{font-size:0.7rem;padding:3px 14px;}}
+        
+        .liquid-glass{background:rgba(255,255,255,.6);border-radius:32px;border:1px solid rgba(255,255,255,.6);box-shadow:0 8px 32px rgba(0,0,0,.08);}
+        .search-wrapper{position:relative;flex:1;}
+        .search-input{background:rgba(255,255,255,.9);border-radius:60px;border:1px solid rgba(255,255,255,.9);padding:12px 20px 12px 48px;width:100%;outline:none;font-size:.95rem;color:#3D2A35;}
+        .search-input::placeholder{color:#A87B8F;}
+        .btn-primary{background:linear-gradient(105deg,rgba(249,168,212,.85),rgba(216,180,160,.85));border-radius:60px;padding:12px 28px;font-weight:600;color:#3D2A35;border:1px solid rgba(255,255,255,.5);cursor:pointer;transition:opacity 0.1s;}
+        .btn-primary:active{opacity:0.7;}
+        .btn-primary.disabled{opacity:.6;cursor:default;pointer-events:none;}
+        .tag-classic{background:rgba(255,255,255,.7);padding:6px 20px;border-radius:60px;font-size:.8rem;font-weight:700;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.05);color:#1a1a2e;border:none;white-space:nowrap;transition:opacity 0.1s;}
+        .tag-classic:active{opacity:0.6;}
+        .tags-flex-wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:16px;}
+        @media (max-width: 540px){.tag-classic{padding:5px 12px;font-size:0.7rem;}.tags-flex-wrap{gap:8px;}}
+        .two-columns{display:flex;flex-direction:column;gap:1rem;}
+        @media (min-width:768px){.two-columns{flex-direction:row;gap:1.25rem;}.two-columns>div{flex:1;min-width:0;}}
+        .scroll-area{max-height:380px;overflow-y:auto;-webkit-overflow-scrolling:touch;overflow-anchor:none;scroll-behavior:auto;}
+        .scroll-area::-webkit-scrollbar{width:4px;}
+        .scroll-area::-webkit-scrollbar-track{background:rgba(0,0,0,.05);border-radius:20px;}
+        .scroll-area::-webkit-scrollbar-thumb{background:#D8B4A0;border-radius:20px;}
+        .count-badge{background:rgba(139,94,124,.35);color:#d61a6f;font-weight:700;padding:2px 10px;border-radius:60px;font-size:.7rem;}
+        .section-title{color:#2D1B2E;font-weight:600;}
+        .song-item{transition:background 0.1s;border-radius:24px;cursor:pointer;}
+        .song-item-active{background:rgba(249,168,212,.65)!important;border-left:3px solid transparent;box-shadow:inset 3px 0 0 #D85A8C;}
+        .song-item:active{background:rgba(249,168,212,.4);}
+        .action-btn{transition:transform 0.1s,opacity 0.1s;}
+        .action-btn:active{transform:scale(0.85);opacity:0.7;}
+        .list-title{color:#2D1B2E;font-weight:600;}
+        .list-artist{color:#6B4A5C;}
+        .list-index{color:#A87B8F;}
+        .floating-player{position:fixed;z-index:200;will-change:left,top;cursor:grab;user-select:none;touch-action:none;}
+        
+        .collapsed-cover{width:60px;height:60px;border-radius:50%;object-fit:cover;box-shadow:0 10px 20px rgba(0,0,0,.18);border:2.5px solid rgba(255,215,0,0.5);background:white;animation:vinylSpin 20s linear infinite;cursor:pointer;display:block;}
+        .circle-cover{width:44px;height:44px;border-radius:50%;object-fit:cover;box-shadow:0 5px 12px rgba(0,0,0,.3);border:2px solid rgba(255,215,0,0.4);background:white;animation:vinylSpin 20s linear infinite;}
+        @keyframes vinylSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+        
+        @media (max-width:480px){.circle-cover{width:40px;height:40px;}.collapsed-cover{width:52px;height:52px;}}
+        .full-card{width:330px;max-width:calc(100vw - 28px);background:linear-gradient(125deg,rgba(25,35,45,0.96),rgba(35,50,65,0.98));border-radius:28px;box-shadow:0 20px 35px -12px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.2);color:#fff;cursor:default;padding:0.9rem 1rem 1rem 1rem;position:relative;pointer-events:auto;}
+        .full-card .drag-handle{position:absolute;top:0;left:0;right:0;height:42px;background:transparent;cursor:grab;border-top-left-radius:28px;border-top-right-radius:28px;z-index:5;pointer-events:auto;}
+        .full-card .drag-handle:active{cursor:grabbing;}
+        @media (max-width:550px){.full-card{width:300px;max-width:calc(100vw - 32px);padding:0.8rem;border-radius:26px;}.full-card .drag-handle{height:38px;}}
+        @media (max-width:420px){.full-card{width:280px;padding:0.7rem;border-radius:24px;}}
+        
+        /* 按钮样式 - 缩小尺寸，保留点击反馈，扩大热区 */
+        .play-pause-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.95);
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            pointer-events: auto;
+            -webkit-tap-highlight-color: transparent;
+            flex-shrink: 0;
+            transition: background 0.08s;
             position: relative;
-            left: 50%;
-            transform: translateX(-50%);
-            margin-inline: auto;
+            z-index: 10;
         }
-        body {
-            padding-left: max(env(safe-area-inset-left), 16px);
-            padding-right: max(env(safe-area-inset-right), 16px);
+        /* 扩大点击热区到44x44，保持易点性 */
+        .play-pause-btn::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            background: transparent;
+            pointer-events: auto;
         }
-        @supports (height: 100dvh) {
-            :root {
-                --mobile-vh: 100dvh;
-            }
+        .play-pause-btn:active {
+            background: rgba(255,255,255,0.45);
+        }
+        
+        .close-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: rgba(255,255,255,0.85);
+            background: rgba(255,255,255,0.18);
+            border-radius: 50%;
+            pointer-events: auto;
+            flex-shrink: 0;
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.08s;
+            position: relative;
+            z-index: 10;
+        }
+        /* 扩大点击热区到40x40 */
+        .close-icon::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            background: transparent;
+            pointer-events: auto;
+        }
+        .close-icon:active {
+            background: rgba(255,255,255,0.4);
+        }
+        
+        /* 下载按钮 */
+        .download-btn {
+            background: linear-gradient(105deg,#10b981,#059669);
+            padding: 5px 12px;
+            border-radius: 40px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: opacity 0.08s;
+            color: #fff;
+            white-space: nowrap;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+            pointer-events: auto;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .download-btn:active {
+            opacity: 0.75;
+        }
+        
+        .quality-btn {
+            padding: 4px 10px;
+            border-radius: 40px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: rgba(255,255,255,.12);
+            color: #f0f0f0;
+            transition: background 0.08s;
+            white-space: nowrap;
+            border: none;
+            pointer-events: auto;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .quality-btn:active {
+            background: rgba(255,255,255,.25);
+        }
+        .quality-active{background:#e11d48;color:#fff;}
+        .quality-active:active{background:#c8234a;}
+        
+        .progress-area{flex:1;height:4px;background:rgba(255,255,255,.22);border-radius:20px;cursor:pointer;position:relative;}
+        .progress-fill{height:100%;background:linear-gradient(90deg,#ff7b89,#f43f5e);border-radius:20px;position:relative;width:0%;}
+        .progress-thumb{position:absolute;right:-5px;top:50%;transform:translateY(-50%);width:10px;height:10px;background:#fff;border-radius:50%;box-shadow:0 1px 6px rgba(0,0,0,.4);pointer-events:none;}
+        .action-row{display:flex;flex-wrap:nowrap;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;}
+        .quality-group{display:flex;align-items:center;gap:5px;background:rgba(0,0,0,.35);border-radius:60px;padding:3px 8px;flex:2;overflow-x:auto;white-space:nowrap;border:.5px solid rgba(255,255,255,.12);}
+        .quality-group::-webkit-scrollbar{display:none;}
+        .toast-msg{animation:fadeSlide .2s;background:rgba(0,0,0,.85);border-radius:60px;color:#fff;}
+        @keyframes fadeSlide{from{opacity:0;transform:translate(-50%,16px);}to{opacity:1;transform:translate(-50%,0);}}
+        .player-info{display:flex;align-items:center;gap:10px;pointer-events:auto;}
+        audio{display:none;}
+        .footer-text{color:#1a1a2e;font-weight:500;text-align:center;font-size:.75rem;margin-top:1.75rem;}
+        .search-header-actions{display:flex;flex-wrap:nowrap;align-items:center;gap:8px;flex-shrink:0;}
+        .mode-btn{background:rgba(249,168,212,0.7);border-radius:60px;padding:6px 14px;font-size:clamp(0.7rem,3.5vw,0.8rem);font-weight:600;color:#2D1B2E;border:0.5px solid rgba(255,255,255,0.6);cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;flex-shrink:0;-webkit-tap-highlight-color:transparent;transition:opacity 0.08s;}
+        .mode-btn:active{opacity:0.6;}
+        .mode-active{background:#e11d48;color:white;border-color:rgba(255,255,255,0.9);}
+        @media (max-width:480px){.mode-btn{padding:5px 10px;font-size:0.65rem;}.search-header-actions{gap:6px;}}
+        .result-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+        
+        
+        /* ── 最近播放/收藏喜欢 tab 切换 ── */
+        .tab-bar{display:flex;gap:0;margin:0 20px 0 0;}
+        .tab-btn{padding:4px 14px;border-radius:60px;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.15s;border:none;background:transparent;color:#6B4A5C;}
+        .tab-btn.tab-active{background:rgba(249,168,212,.75);color:#2D1B2E;box-shadow:0 2px 6px rgba(0,0,0,.06);}
+        .tab-btn:active{opacity:0.7;}
+
+        /* 触控优化 */
+        .play-pause-btn, .close-icon, .download-btn, .quality-btn, .mode-btn, .tag-classic, .btn-primary, .song-item {
+            touch-action: manipulation;
         }
     </style>
-    <script>
-        (function fixMobileVH(){
-            document.documentElement.style.setProperty("--mobile-vh", window.innerHeight + "px");
-            window.addEventListener("resize", fixMobileVH);
-            window.addEventListener("orientationchange", fixMobileVH);
-        })();
-    </script>
-
 </head>
 <body>
-    <div class="background-stage" id="backgroundStage" aria-hidden="true">
-        <div class="background-stage__layer background-stage__layer--base" id="backgroundBaseLayer"></div>
-        <div class="background-stage__layer background-stage__layer--transition" id="backgroundTransitionLayer"></div>
+    <div class="marquee-lux"><div class="marquee-container"><div class="marquee-track"><span class="marquee-text">人生不可能一帆风顺，面对生活的种种挑战，我们无法逃避，只有坦然面对，还有等待着你去面对的磨难，要有一个勇敢的笑容，勇敢面对，不要惶恐，去发现雨过天晴后的美好</span></div></div></div>
+    <div id="app" class="relative z-10 max-w-5xl mx-auto px-5 main-container">
+        <div class="hero-banner">
+            <div class="banner-deco"><div class="note" style="top:-5px;left:3%;">🎵</div><div class="note" style="bottom:-5px;right:5%;">♪</div><div class="note" style="top:20px;right:18%;font-size:1.8rem;">🎶</div><div class="star" style="top:-15px;left:12%;">✨</div><div class="star" style="bottom:8px;right:22%;">⭐</div><div class="star" style="top:40px;left:80%;">🌟</div><div class="curve" style="top:-8px;left:-20px;width:100px;height:50px;"></div><div class="curve" style="bottom:-5px;right:-10px;transform:rotate(25deg);width:120px;height:55px;"></div><div class="curve" style="top:35px;left:70%;transform:rotate(-40deg);width:70px;"></div></div>
+            <div class="glow-title">过来人音乐</div><div class="banner-sub">◈ 匠心打造胶碟原音・殿堂级高品质音源 ◈</div>
+        </div>
+        <div class="liquid-glass p-5 md:p-6 mb-6">
+            <div class="flex flex-col md:flex-row gap-4"><div class="search-wrapper"><span class="absolute left-5 top-1/2 -translate-y-1/2 text-rose-400 text-lg z-10">🔍</span><input v-model="keyword" @keyup.enter="searchMusic" type="text" placeholder="输入歌曲名或者歌手名" class="search-input"></div><button @click="searchMusic" :class="['btn-primary','flex items-center justify-center gap-2 min-w-[130px]',loading && 'disabled']"><span v-if="loading" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span><span>{{ loading ? '搜寻中' : '搜索音乐' }}</span></button></div>
+            <div class="tags-flex-wrap"><span v-for="(tag, idx) in extendedTags" :key="tag" @click="keyword = tag; searchMusic()" class="tag-classic" :style="{background: `linear-gradient(105deg, ${tagColors[idx % tagColors.length]})`}">🎧 {{ tag }}</span></div>
+        </div>
+        <div class="two-columns">
+            <div class="liquid-glass overflow-hidden flex flex-col"><div class="px-5 py-3 border-b border-white/40 result-header"><div class="result-left"><span class="section-title text-sm">🎵 搜索结果</span><span v-if="songs.length" class="count-badge">{{ songs.length }}首</span></div><div class="search-header-actions" v-if="songs.length"><div @click="enableSequentialMode" class="mode-btn" :class="{ 'mode-active': isSequentialMode && !isShuffleMode }">▶ 顺序播放</div><div @click="enableShuffleMode" class="mode-btn" :class="{ 'mode-active': isShuffleMode }">🔀 随机播放</div></div></div><div v-if="loading && !songs.length" class="p-8 text-center"><div class="w-8 h-8 border-2 border-rose-300 border-t-rose-500 rounded-full animate-spin mx-auto mb-2"></div><p class="text-sm" style="color:#A87B8F;">搜索中...</p></div><div v-else-if="!songs.length && !loading" class="p-8 text-center"><div class="text-5xl mb-2 opacity-50">🎼</div><p class="text-sm" style="color:#6B4A5C;">输入关键词开始探索</p></div><div v-else class="scroll-area divide-y divide-white/30"><div v-for="(song, idx) in songs" :key="song.id" @click="playSingleSong(song)" class="song-item flex items-center gap-3 px-4 py-2.5" :class="currentSong && currentSong.id === song.id ? 'song-item-active' : ''"><div class="list-index font-mono w-7 text-center text-sm"><span v-if="currentSong && currentSong.id === song.id" style="color:#D85A8C;font-size:12px;">▶</span><span v-else>{{ idx+1 }}</span></div><div class="relative shrink-0"><img :src="song.artwork" class="w-10 h-10 rounded-lg object-cover shadow-sm" @error="song.artwork = defaultCover"></div><div class="flex-1 min-w-0"><div class="list-title font-semibold truncate text-sm">{{ song.title }}</div><div class="list-artist text-xs truncate">{{ song.artist }}</div></div><div class="flex items-center gap-1 shrink-0 ml-1"><span class="text-[10px] hidden sm:block" style="color:#B88B9F;">{{ song.duration }}</span><button class="action-btn flex items-center justify-center w-6 h-6 rounded-full text-xs" :style="favorites.some(h=>h.id===song.id) ? 'background:rgba(249,168,212,.85); color:#E11D48;' : 'background:rgba(255,255,255,.65); color:#C4A0B0;'" :title="favorites.some(h=>h.id===song.id) ? '取消收藏' : '收藏'" @click.stop="toggleFavorite(song)"><span v-if="favorites.some(h=>h.id===song.id)" >♥</span><span v-else>♡</span></button><button class="action-btn flex items-center justify-center w-6 h-6 rounded-full text-xs" style="background:linear-gradient(135deg,#C084FC,#818CF8); color:#fff; margin-left:4px; box-shadow:0 2px 8px rgba(192,132,252,.3);" @click.stop="downloadSongDirect(song)" title="下载">↓</button></div></div></div></div>
+            <div class="liquid-glass overflow-hidden flex flex-col"><div class="flex justify-between items-center px-5 py-3 border-b border-white/40"><div class="flex items-center gap-2"><div class="tab-bar"><button @click="activeTab='recent'" class="tab-btn" :class="{'tab-active':activeTab==='recent'}">⏱️ 最近播放</button><button @click="activeTab='favorites'" class="tab-btn" :class="{'tab-active':activeTab==='favorites'}">♥ 收藏喜欢</button></div><span v-if="activeTab==='recent' && historySongs.length" class="count-badge">{{ historySongs.length }}首</span><span v-if="activeTab==='favorites' && favorites.length" class="count-badge">{{ favorites.length }}首</span></div><div v-if="(activeTab==='recent' && historySongs.length) || (activeTab==='favorites' && favorites.length)" @click="activeTab==='recent'?clearHistory():clearFavorites()" class="text-xs cursor-pointer transition-all" style="background:rgba(0,0,0,.05); padding:4px 12px; border-radius:60px; color:#6B4A5C;">清空</div></div><div v-if="activeTab==='recent'"><div v-if="historySongs.length === 0" class="p-8 text-center"><div class="text-5xl mb-2 opacity-50">🎤</div><p class="text-sm" style="color:#6B4A5C;">暂无播放记录</p><p class="text-xs mt-1" style="color:#A87B8F;">播放歌曲后会出现在这里</p></div><div v-else class="scroll-area divide-y divide-white/30"><div v-for="(song, idx) in historySongs" :key="song.id + idx" @click="playFromHistory(song, idx)" class="song-item flex items-center gap-3 px-4 py-2.5" :class="currentSong && currentSong.id === song.id ? 'song-item-active' : ''"><div class="list-index font-mono w-7 text-center text-sm"><span v-if="currentSong && currentSong.id === song.id" style="color:#D85A8C;font-size:12px;">▶</span><span v-else>{{ idx+1 }}</span></div><div class="relative shrink-0"><img :src="song.artwork" class="w-10 h-10 rounded-lg object-cover shadow-sm" @error="song.artwork = defaultCover"></div><div class="flex-1 min-w-0"><div class="list-title font-semibold truncate text-sm">{{ song.title }}</div><div class="list-artist text-xs truncate">{{ song.artist }}</div></div><div class="flex items-center gap-1 shrink-0 ml-1"><span class="text-[10px] hidden sm:block" style="color:#B88B9F;">{{ song.duration }}</span><button class="action-btn flex items-center justify-center w-6 h-6 rounded-full text-xs" style="background:linear-gradient(135deg,#C084FC,#818CF8); color:#fff; margin-left:4px; box-shadow:0 2px 8px rgba(192,132,252,.3);" @click.stop="downloadSongDirect(song)" title="下载">↓</button><button class="action-btn flex items-center justify-center w-6 h-6 rounded-full text-xs" :style="favorites.some(f=>f.id===song.id) ? 'background:rgba(249,168,212,.85); color:#E11D48;' : 'background:rgba(255,255,255,.65); color:#C4A0B0;'" @click.stop="toggleFavorite(song)"><span v-if="favorites.some(f=>f.id===song.id)">♥</span><span v-else>♡</span></button><button class="action-btn flex items-center justify-center w-6 h-6 rounded-full text-xs" style="background:rgba(249,168,212,.2); color:#EF4444; margin-left:4px;" @click.stop="removeHistorySong(song.id)" title="删除"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button></div></div></div></div><div v-if="activeTab==='favorites'"><div v-if="favorites.length === 0" class="p-8 text-center"><div class="text-5xl mb-2 opacity-50">💜</div><p class="text-sm" style="color:#6B4A5C;">暂无收藏歌曲</p><p class="text-xs mt-1" style="color:#A87B8F;">点击 ♡ 按钮收藏喜欢的歌曲</p></div><div v-else class="scroll-area divide-y divide-white/30"><div v-for="(song, idx) in favorites" :key="song.id + idx" @click="playFromFavorite(song, idx)" class="song-item flex items-center gap-3 px-4 py-2.5" :class="currentSong && currentSong.id === song.id ? 'song-item-active' : ''"><div class="list-index font-mono w-7 text-center text-sm"><span v-if="currentSong && currentSong.id === song.id" style="color:#D85A8C;font-size:12px;">▶</span><span v-else>{{ idx+1 }}</span></div><div class="relative shrink-0"><img :src="song.artwork" class="w-10 h-10 rounded-lg object-cover shadow-sm" @error="song.artwork = defaultCover"></div><div class="flex-1 min-w-0"><div class="list-title font-semibold truncate text-sm">{{ song.title }}</div><div class="list-artist text-xs truncate">{{ song.artist }}</div></div><div class="flex items-center gap-1 shrink-0 ml-1"><span class="text-[10px] hidden sm:block" style="color:#B88B9F;">{{ song.duration }}</span><button class="action-btn flex items-center justify-center w-6 h-6 rounded-full text-xs" style="background:linear-gradient(135deg,#C084FC,#818CF8); color:#fff; margin-left:4px; box-shadow:0 2px 8px rgba(192,132,252,.3);" @click.stop="downloadSongDirect(song)" title="下载">↓</button><button class="action-btn flex items-center justify-center w-6 h-6 rounded-full text-xs" :style="favorites.some(f=>f.id===song.id) ? 'background:rgba(249,168,212,.85); color:#E11D48;' : 'background:rgba(255,255,255,.65); color:#C4A0B0;'" @click.stop="toggleFavorite(song)"><span v-if="favorites.some(f=>f.id===song.id)">♥</span><span v-else>♡</span></button><button class="action-btn flex items-center justify-center w-6 h-6 rounded-full text-xs" style="background:rgba(249,168,212,.2); color:#EF4444; margin-left:4px;" @click.stop="removeFavorite(song.id)" title="删除"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button></div></div></div></div></div>
+        </div>
+        <div v-if="currentSong"><div class="floating-player" :style="floatingStyle" @mousedown="startDragFloater" @touchstart="startDragFloater"><div v-if="!isExpanded" @click="expandFromBall" @touchstart="onBallTouchStart" @touchend="onBallTouchEnd"><img :src="currentSong.artwork" class="collapsed-cover" @error="currentSong.artwork = defaultCover" draggable="false"></div><div v-else class="full-card" @click.stop @mousedown.stop @touchstart.stop><div class="drag-handle" @mousedown="startDragCard" @touchstart="startDragCard"></div><div class="player-info"><img :src="currentSong.artwork" class="circle-cover" @error="currentSong.artwork = defaultCover"><div class="flex-1 min-w-0"><div class="font-bold text-sm text-white truncate leading-tight">{{ currentSong.title }}</div><div class="text-white/65 text-[11px] truncate mt-0.5">{{ currentSong.artist }}</div></div><div class="play-pause-btn" @click.stop="togglePlay"><span>{{ isPlaying ? '❙❙' : '▶' }}</span></div><div class="close-icon" @click.stop="collapseByOverlay">✕</div></div><div class="mt-2"><div class="flex items-center gap-2"><span class="text-white/70 text-[10px] font-mono">{{ currentTime }}</span><div class="progress-area" @click="handleProgressClick" @mousedown="startDragProgress" @mousemove="preventIfDragging" @mouseup="endDragProgress" @touchstart="startDragProgress" @touchmove="preventIfDragging" @touchend="endDragProgress"><div class="progress-fill" :style="{ width: progressPercent + '%' }"><div class="progress-thumb"></div></div></div><span class="text-white/70 text-[10px] font-mono">{{ duration }}</span></div><div v-if="isDraggingProgress" class="text-white/30 text-[8px] text-center mt-0.5">滑动快进退</div></div><div class="action-row"><div class="quality-group"><span class="text-white/80 text-[9px] font-medium mr-0.5">音质</span><button v-for="q in qualities" :key="q.value" @click.stop="switchQuality(q.value)" class="quality-btn" :class="currentQuality === q.value ? 'quality-active' : ''">{{ q.label }}</button></div><div class="download-btn" @click.stop="downloadSong" :class="{ 'opacity-50': downloading }"><span v-if="downloading" class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span><span v-else>⬇️ 下载</span></div></div><div v-if="playError" class="flex items-center justify-center gap-2 mt-2 bg-rose-500/30 backdrop-blur-sm px-2 py-1 rounded-full"><span class="text-amber-100 text-[10px]">{{ playError }}</span><button @click.stop="refreshPlay" class="text-purple-200 underline text-[10px] font-bold">重试</button></div></div></div></div>
+        <audio ref="audioPlayer" :src="currentPlayUrl" @loadedmetadata="onLoaded" @timeupdate="onTimeUpdate" @ended="onSongEnded"></audio>
+        <div class="footer-text">🎵 至臻母带级解码· 还原唱片原始声场・深挖词曲细腻细节</div>
+        <transition name="toast"><div v-if="msg" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-xl text-white px-5 py-2.5 rounded-full text-sm shadow-2xl z-50 flex items-center gap-2 toast-msg border border-white/10"><span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span> {{ msg }}</div></transition>
     </div>
-    <div class="container" id="mainContainer">
-        <div class="mobile-toolbar" id="mobileToolbar" role="toolbar">
-            <button class="mobile-toolbar__button" id="mobileExploreButton" type="button" aria-label="探索雷达">
-                <i class="fas fa-satellite-dish" aria-hidden="true"></i>
-            </button>
-            <div class="mobile-toolbar__title" id="mobileToolbarTitle">Solara</div>
-            <div class="mobile-toolbar__actions">
-                <button class="mobile-toolbar__button" id="mobileSearchToggle" type="button" aria-label="打开搜索">
-                    <i class="fas fa-search" aria-hidden="true"></i>
-                </button>
-            </div>
-        </div>
-        <div class="header">
-            <h1>Solara</h1>
-            <div class="warning">Made by Wet Dream Boy，免费API来自GD音乐台(music.gdstudio.xyz)，仅供学习交流使用，请支持正版音乐奥！</div>
-            <div class="header-left-controls">
-                <button id="themeToggleButton" class="theme-toggle-button" type="button" aria-label="切换深浅色模式">
-                    <i class="fas fa-sun theme-icon theme-icon--sun" aria-hidden="true"></i>
-                    <i class="fas fa-moon theme-icon theme-icon--moon" aria-hidden="true"></i>
-                </button>
-            </div>
-            <div class="theme-switch-wrapper">
-                <button id="openSettingsBtn" class="theme-toggle-button" type="button" aria-label="设置" title="设置（或双击Logo）">
-                    <i class="fas fa-cog" aria-hidden="true"></i>
-                </button>
-            </div>
-        </div>
+    <script>
+        const { createApp, ref, nextTick, onUnmounted } = Vue;
+        const PROXY = 'https://proxy.api.030101.xyz/';
+        const qualities = [{ value: 'low', label: '标准' }, { value: 'standard', label: '高品质' }, { value: 'high', label: '无损' }];
+        const defaultCover = 'https://y.gtimg.cn/music/photo_new/T002R300x300M000000MkMni19ClKG.jpg';
+        const searchHeaders = { referer: "https://y.qq.com", "user-agent": "Mozilla/5.0", Cookie: "uin=" };
+        const HISTORY_KEY = 'guolairen_music_history';
+        const FAVORITES_KEY = 'guolairen_music_favorites';
+        const tagColors = ['#FF9A9E,#FECFEF', '#A18CD1,#FBC2EB', '#84FAB0,#8FD3F4', '#FFD26F,#FF9A9E', '#FAD0C4,#FFD1FF', '#FFB347,#FF7E5F', '#6B8CFF,#A777E3', '#F2709C,#FF9472'];
+        function formatItem(item){ const albumMid = item.album?.mid; return { id:item.id||item.songid, songmid:item.mid||item.songmid, title:item.title||item.songname, artist:item.singer?.map(s=>s.name).join(", ")||"未知歌手", artwork:albumMid ? `https://y.gtimg.cn/music/photo_new/T002R800x800M000${albumMid}.jpg` : defaultCover, duration:item.interval?`${Math.floor(item.interval/60)}:${String(item.interval%60).padStart(2,'0')}`:'03:30' }; }
+        async function searchQQ(q){ const res=await axios.post(PROXY+'https://u.y.qq.com/cgi-bin/musicu.fcg',{ req_1:{ method:"DoSearchForQQMusicDesktop", module:"music.search.SearchCgiService", param:{ num_per_page:30, page_num:1, query:q, search_type:0 } } },{ headers:searchHeaders, timeout:15000 }); return (res.data?.req_1?.data?.body?.song?.list||[]).map(formatItem); }
+        async function getUrl(songmid,quality){ try{ const levelMap={ low:'standard', standard:'exhigh', high:'lossless' }; const level=levelMap[quality]||'exhigh'; const res=await axios.get(PROXY+`https://music.haitangw.cc/music/qq_song_kw.php?id=${songmid}&level=${level}&type=json`,{ headers:{'User-Agent':'Mozilla/5.0','Referer':'https://y.qq.com'}, timeout:15000 }); return res.data?.data?.url||null; }catch(e){ return null; } }
+        const urlCache=new Map();
+        async function getCachedUrl(songmid,q){ const key=`${songmid}_${q}`; if(urlCache.has(key)) return urlCache.get(key); const url=await getUrl(songmid,q); if(url) urlCache.set(key,url); return url; }
+        createApp({ setup(){
+            const keyword=ref(''), songs=ref([]), loading=ref(false), currentSong=ref(null), currentPlayUrl=ref(''), playError=ref(''), msg=ref(''), downloading=ref(false), currentQuality=ref('standard'), audioPlayer=ref(null), isPlaying=ref(false), currentTime=ref('00:00'), duration=ref('00:00'), progressPercent=ref(0), isExpanded=ref(false), isDraggingProgress=ref(false), historySongs=ref([]), favorites=ref([]), activeTab=ref("recent");
+            const extendedTags = ref(['晴天','奔腾','九尾狐','半壶纱','撕心裂肺的思念','邓紫棋','张学友','洋澜一','孙露','郑源','张杰']);
+            const isShuffleMode = ref(false), isSequentialMode = ref(false);
+            const playlist = ref([]), currentPlayIndex = ref(-1);
+            let autoPlayActive = false, autoTimer = null;
 
-        <div class="search-area" id="searchArea">
-            <div class="search-header">
-                <h2 class="search-title">探索音乐</h2>
-                <button type="button" class="mobile-close-btn" id="mobileSearchClose" aria-label="关闭搜索">
-                    <i class="fas fa-times" aria-hidden="true"></i>
-                </button>
-            </div>
-            <div class="search-controls-wrapper">
-                <div class="search-bar-unified">
-                    <div class="search-input-wrapper">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" id="searchInput" class="search-input" placeholder="搜索歌曲、歌手或专辑...">
-                    </div>
-                    <div class="source-select-wrapper" id="sourceSelectWrapper">
-                        <button id="sourceSelectButton" class="source-select-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
-                            <span id="sourceSelectLabel">网易云</span>
-                            <i class="fas fa-chevron-down caret-icon" aria-hidden="true"></i>
-                        </button>
-                        <div id="sourceMenu" class="source-menu" role="listbox" aria-labelledby="sourceSelectButton"></div>
-                    </div>
-                </div>
-                <button id="searchBtn" class="search-btn">
-                    <i class="fas fa-search"></i>
-                    <span>搜索</span>
-                </button>
-                <div class="search-results-toolbar">
-                    <div class="import-dropdown">
-                        <button class="import-selected-btn" id="importSelectedBtn" disabled>
-                            <i class="fas fa-file-import"></i>
-                            <span>导入已选</span>
-                            <span id="importSelectedCount" class="import-selected-count"></span>
-                            <i class="fas fa-chevron-down import-dropdown-caret"></i>
-                        </button>
-                        <div class="import-dropdown-menu" id="importSelectedMenu" hidden>
-                            <button class="import-dropdown-item" id="importToPlaylist" data-action="playlist">导入到播放列表</button>
-                            <button class="import-dropdown-item" id="importToFavorites" data-action="favorites">导入到收藏列表</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div id="searchResults" class="search-results">
-                <div id="searchResultsList" class="search-results-list"></div>
-            </div>
-        </div>
+            /* ── localStorage 防抖写入 ── */
+            let saveTimer = null;
+            const sanitizeSong = s => ({ id:s.id, songmid:s.songmid, title:s.title, artist:s.artist, artwork:s.artwork, duration:s.duration });
+            const loadHistory = () => { try { const s = localStorage.getItem(HISTORY_KEY); if(s) historySongs.value = JSON.parse(s).map(sanitizeSong); } catch(e){} };
+            const saveHistory = () => { if(saveTimer) clearTimeout(saveTimer); saveTimer = setTimeout(() => { try { localStorage.setItem(HISTORY_KEY, JSON.stringify(historySongs.value.map(sanitizeSong))); } catch(e){} }, 500); };
+            const addRecent = s => { if(!s?.id) return; historySongs.value = historySongs.value.filter(v => v.id !== s.id); historySongs.value = [sanitizeSong(s), ...historySongs.value]; if(historySongs.value.length > 20) historySongs.value.length = 20; saveHistory(); };
 
-        <div class="main-content">
-            <div class="cover-area">
-                <div class="mobile-turntable" id="mobileTurntable">
-                    <div class="mobile-turntable__platter">
-                        <div class="album-cover" id="albumCover">
-                            <div class="placeholder">
-                                <i class="fas fa-music"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="mobile-inline-lyrics" id="mobileInlineLyrics" aria-hidden="true">
-                    <div class="mobile-inline-lyrics__hint">
-                        <i class="fas fa-arrow-left"></i>
-                        轻触返回封面
-                    </div>
-                    <div class="mobile-inline-lyrics__scroll" id="mobileInlineLyricsScroll">
-                        <div class="mobile-inline-lyrics__content" id="mobileInlineLyricsContent"></div>
-                    </div>
-                </div>
-                <div class="current-song-info">
-                    <div class="current-song-title-row">
-                        <span class="current-song-title" id="currentSongTitle">选择一首歌曲开始播放</span>
-                        <button
-                            class="favorite-toggle current-favorite-btn"
-                            id="currentFavoriteToggle"
-                            type="button"
-                            aria-label="收藏当前歌曲"
-                            title="收藏当前歌曲"
-                        >
-                            <i class="far fa-heart" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                    <div class="current-song-artist" id="currentSongArtist">未知艺术家</div>
-                    <button class="mobile-quality-chip" id="mobileQualityToggle" type="button" aria-haspopup="menu" aria-expanded="false">
-                        <span id="mobileQualityLabel">极高音质</span>
-                        <i class="fas fa-chevron-down" aria-hidden="true"></i>
-                    </button>
-                </div>
-            </div>
+            /* ── 浮动播放器位置 ── */
+            const getSafeInitialPos = () => { const bw=60, pad=12; return { x: Math.max(20, Math.min(window.innerWidth-80, window.innerWidth-bw-pad)), y: Math.max(70, Math.min(window.innerHeight-100, window.innerHeight-bw-80)) }; };
+            const initPos = getSafeInitialPos();
+            const positionX = ref(initPos.x > 8 ? initPos.x : 20);
+            const positionY = ref(initPos.y > 8 ? initPos.y : 80);
+            const floatingStyle = ref({});
+            let dragActive=false, dragStartX=0, dragStartY=0, startPosX=0, startPosY=0, hasMovedDuringDrag=false, ballTouchTimer=null, pendingClick=false;
+            let cachedCardW=300, cachedCardH=170;
+            const refreshCardSize = () => { const el=document.querySelector('.full-card'); if(el){ cachedCardW=el.offsetWidth||300; cachedCardH=el.offsetHeight||170; } };
 
-            <div class="mobile-panel" id="mobilePanel">
-                <div class="mobile-panel-header" id="mobilePanelHeader">
-                    <div class="mobile-panel-handle" aria-hidden="true"></div>
-                    <div class="playlist-tabs" role="tablist">
-                        <button
-                            id="mobilePlaylistTab"
-                            class="playlist-tab active"
-                            type="button"
-                            role="tab"
-                            aria-selected="true"
-                            data-target="playlist"
-                        >
-                            播放列表
-                        </button>
-                        <button
-                            id="mobileFavoritesTab"
-                            class="playlist-tab"
-                            type="button"
-                            role="tab"
-                            aria-selected="false"
-                            data-target="favorites"
-                        >
-                            收藏列表
-                        </button>
-                    </div>
-                    <div class="mobile-panel-actions">
-                        <div class="mobile-actions-group" id="mobilePlaylistActions" role="group" aria-label="播放列表操作" aria-hidden="false">
-                            <button
-                                id="mobileImportPlaylistBtn"
-                                class="mobile-panel-action-btn"
-                                type="button"
-                                aria-label="导入播放列表"
-                                title="导入播放列表"
-                            >
-                                <i class="fas fa-file-import" aria-hidden="true"></i>
-                            </button>
-                            <button
-                                id="mobileExportPlaylistBtn"
-                                class="mobile-panel-action-btn"
-                                type="button"
-                                aria-label="导出播放列表"
-                                title="导出播放列表"
-                                aria-disabled="true"
-                                disabled
-                            >
-                                <i class="fas fa-file-export" aria-hidden="true"></i>
-                            </button>
-                            <button
-                                id="mobileClearPlaylistBtn"
-                                class="mobile-panel-action-btn mobile-panel-clear-btn"
-                                type="button"
-                                aria-label="清空播放列表"
-                                title="清空播放列表"
-                                onclick="clearPlaylist()"
-                                hidden
-                                aria-hidden="true"
-                            >
-                                <i class="fas fa-trash" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                        <div class="mobile-actions-group" id="mobileFavoritesActions" role="group" aria-label="收藏列表操作" hidden aria-hidden="true">
-                            <button
-                                id="mobileAddAllFavoritesBtn"
-                                class="mobile-panel-action-btn"
-                                type="button"
-                                aria-label="全部添加到播放列表"
-                                title="全部添加到播放列表"
-                            >
-                                <i class="fas fa-plus-circle" aria-hidden="true"></i>
-                            </button>
-                            <button
-                                id="mobileImportFavoritesBtn"
-                                class="mobile-panel-action-btn"
-                                type="button"
-                                aria-label="导入收藏列表"
-                                title="导入收藏列表"
-                            >
-                                <i class="fas fa-file-import" aria-hidden="true"></i>
-                            </button>
-                            <button
-                                id="mobileExportFavoritesBtn"
-                                class="mobile-panel-action-btn"
-                                type="button"
-                                aria-label="导出收藏列表"
-                                title="导出收藏列表"
-                                aria-disabled="true"
-                                disabled
-                            >
-                                <i class="fas fa-file-export" aria-hidden="true"></i>
-                            </button>
-                            <button
-                                id="mobileClearFavoritesBtn"
-                                class="mobile-panel-action-btn mobile-panel-clear-btn"
-                                type="button"
-                                aria-label="清空收藏列表"
-                                title="清空收藏列表"
-                            >
-                                <i class="fas fa-trash" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                        <button id="mobilePanelClose" class="mobile-close-btn mobile-panel-action-btn" type="button" aria-label="收起播放面板">
-                            <i class="fas fa-chevron-down" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                </div>
+            const clampPosition = (x, y) => {
+                if(isExpanded.value){ return { x: Math.max(8, Math.min(x, window.innerWidth-cachedCardW-12)), y: Math.max(8, Math.min(y, window.innerHeight-cachedCardH-12)) }; }
+                return { x: Math.max(8, Math.min(x, window.innerWidth-66)), y: Math.max(8, Math.min(y, window.innerHeight-66)) };
+            };
+            const snapToBottomRight = () => { refreshCardSize(); positionX.value = Math.max(8, window.innerWidth - cachedCardW - 12); positionY.value = Math.max(8, window.innerHeight - cachedCardH - 12); };
+            const updateFloatingPosition = () => { const {x,y} = clampPosition(positionX.value, positionY.value); positionX.value=x; positionY.value=y; floatingStyle.value = { left: x+'px', top: y+'px', right:'auto', bottom:'auto', transform:'none' }; };
 
-                <div class="playlist active empty" id="playlist" role="tabpanel" aria-labelledby="playlistTab">
-                    <div class="playlist-header">
-                        <div class="playlist-tabs" role="tablist">
-                            <button
-                                id="playlistTab"
-                                class="playlist-tab active"
-                                type="button"
-                                role="tab"
-                                aria-selected="true"
-                                data-target="playlist"
-                            >播放列表</button>
-                            <button
-                                id="favoritesTab"
-                                class="playlist-tab"
-                                type="button"
-                                role="tab"
-                                aria-selected="false"
-                                data-target="favorites"
-                            >收藏列表</button>
-                        </div>
-                        <div class="playlist-actions-tray" role="group" aria-label="播放列表操作">
-                            <input
-                                id="importPlaylistInput"
-                                class="playlist-import-input"
-                                type="file"
-                                accept="application/json"
-                                hidden
-                            />
-                            <button
-                                class="playlist-action-btn playlist-action-btn--import"
-                                id="importPlaylistBtn"
-                                type="button"
-                                title="导入播放列表"
-                                aria-label="导入播放列表"
-                            >
-                                <i class="fas fa-file-import" aria-hidden="true"></i>
-                            </button>
-                            <button
-                                class="playlist-action-btn playlist-action-btn--export"
-                                id="exportPlaylistBtn"
-                                type="button"
-                                title="导出播放列表"
-                                aria-label="导出播放列表"
-                            >
-                                <i class="fas fa-file-export" aria-hidden="true"></i>
-                            </button>
-                            <button
-                                class="playlist-action-btn playlist-action-btn--clear clear-playlist-btn"
-                                id="clearPlaylistBtn"
-                                type="button"
-                                onclick="clearPlaylist()"
-                                title="清空播放列表"
-                                aria-label="清空播放列表"
-                            >
-                                <i class="fas fa-trash" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="playlist-scroll">
-                        <div class="playlist-items" id="playlistItems"></div>
-                    </div>
-                </div>
-                <div class="playlist favorites empty" id="favorites" role="tabpanel" aria-labelledby="favoritesTab" hidden>
-                    <div class="playlist-header">
-                        <div class="playlist-tabs" role="tablist">
-                            <button
-                                id="playlistTabSecondary"
-                                class="playlist-tab active"
-                                type="button"
-                                role="tab"
-                                aria-selected="true"
-                                data-target="playlist"
-                            >播放列表</button>
-                            <button
-                                id="favoritesTabSecondary"
-                                class="playlist-tab"
-                                type="button"
-                                role="tab"
-                                aria-selected="false"
-                                data-target="favorites"
-                            >收藏列表</button>
-                        </div>
-                        <div class="playlist-actions-tray" role="group" aria-label="收藏列表操作">
-                            <button
-                                class="playlist-action-btn"
-                                id="addAllFavoritesBtn"
-                                type="button"
-                                title="全部添加到播放列表"
-                                aria-label="全部添加到播放列表"
-                            >
-                                <i class="fas fa-plus-circle" aria-hidden="true"></i>
-                            </button>
-                            <input
-                                id="importFavoritesInput"
-                                class="playlist-import-input"
-                                type="file"
-                                accept="application/json"
-                                hidden
-                            />
-                            <button
-                                class="playlist-action-btn"
-                                id="importFavoritesBtn"
-                                type="button"
-                                title="导入收藏列表"
-                                aria-label="导入收藏列表"
-                            >
-                                <i class="fas fa-file-import" aria-hidden="true"></i>
-                            </button>
-                            <button
-                                class="playlist-action-btn"
-                                id="exportFavoritesBtn"
-                                type="button"
-                                title="导出收藏列表"
-                                aria-label="导出收藏列表"
-                            >
-                                <i class="fas fa-file-export" aria-hidden="true"></i>
-                            </button>
-                            <button
-                                class="playlist-action-btn playlist-action-btn--clear"
-                                id="clearFavoritesBtn"
-                                type="button"
-                                title="清空收藏列表"
-                                aria-label="清空收藏列表"
-                            >
-                                <i class="fas fa-trash" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="playlist-scroll">
-                        <div class="playlist-items" id="favoriteItems"></div>
-                    </div>
-                </div>
-                <div class="lyrics empty" id="lyrics" data-placeholder="default">
-                    <div class="lyrics-scroll" id="lyricsScroll">
-                        <div class="lyrics-content" id="lyricsContent"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+            /* ── rAF 节流拖拽 ── */
+            let rafId = 0;
+            const scheduleUpdate = () => { if(!rafId) rafId = requestAnimationFrame(() => { rafId=0; updateFloatingPosition(); }); };
+            const applyDrag = (cx, cy) => { const dx=cx-dragStartX, dy=cy-dragStartY; if(Math.abs(dx)>3||Math.abs(dy)>3) hasMovedDuringDrag=true; const {x,y}=clampPosition(startPosX+dx, startPosY+dy); positionX.value=x; positionY.value=y; scheduleUpdate(); };
+            const onDragMove = (e) => { if(!dragActive) return; e.preventDefault(); const t=e.touches; applyDrag(t?t[0].clientX:e.clientX, t?t[0].clientY:e.clientY); };
+            const onDragEnd = () => { dragActive=false; window.removeEventListener('mousemove',onDragMove); window.removeEventListener('mouseup',onDragEnd); window.removeEventListener('touchmove',onDragMove); window.removeEventListener('touchend',onDragEnd); setTimeout(()=>{ hasMovedDuringDrag=false; },100); };
+            const beginDrag = (e, expanded) => { if(expanded && !isExpanded.value) return; if(!expanded && isExpanded.value) return; e.preventDefault(); if(expanded) e.stopPropagation(); dragActive=true; hasMovedDuringDrag=false; const t=e.touches; const cx=t?t[0].clientX:(e.clientX||0); const cy=t?t[0].clientY:(e.clientY||0); dragStartX=cx; dragStartY=cy; startPosX=positionX.value; startPosY=positionY.value; window.addEventListener('mousemove',onDragMove); window.addEventListener('mouseup',onDragEnd); window.addEventListener('touchmove',onDragMove); window.addEventListener('touchend',onDragEnd); };
+            const startDragFloater = (e) => beginDrag(e, false);
+            const startDragCard = (e) => beginDrag(e, true);
 
-        <div class="controls">
-            <div class="transport-controls">
-                <button class="play-mode-btn transport-button transport-button--mode" id="playModeBtn" type="button" title="播放模式">
-                    <i class="fas fa-repeat"></i>
-                </button>
-                <button class="transport-button transport-button--prev" onclick="playPrevious()" type="button" title="上一曲"><i class="fas fa-backward-step"></i></button>
-                <button class="transport-button transport-button--play" id="playPauseBtn" type="button" title="播放 / 暂停"><i class="fas fa-play"></i></button>
-                <button class="transport-button transport-button--next" onclick="playNext()" type="button" title="下一曲"><i class="fas fa-forward-step"></i></button>
-                <button class="transport-button transport-button--queue" id="mobileQueueToggle" type="button" title="打开播放列表" aria-label="打开播放列表"><i class="fas fa-bars"></i></button>
-                <button class="transport-button transport-button--shuffle" id="shuffleToggleBtn" type="button" title="随机播放" aria-label="切换随机播放"><i class="fas fa-shuffle shuffle-icon shuffle-icon--off"></i></button>
-            </div>
-            <div class="progress-container">
-                <span id="currentTimeDisplay">00:00</span>
-                <input type="range" id="progressBar" min="0" max="0" step="0.1" value="0">
-                <span id="durationDisplay">00:00</span>
-            </div>
-            <div class="control-trailing">
-                <div class="audio-tools">
-                    <div class="player-quality">
-                        <button id="qualityToggle" class="player-quality-btn" type="button">
-                            <span id="qualityLabel">极高音质</span>
-                        </button>
-                        <div id="playerQualityMenu" class="player-quality-menu"></div>
-                    </div>
-                    <div class="volume-container">
-                        <i id="volumeIcon" class="fas fa-volume-up"></i>
-                        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.8">
-                    </div>
-                </div>
-                <button id="loadOnlineBtn" title="聚合所有雷达，探索新音乐">
-                    <span class="btn-text"><i class="fas fa-satellite-dish"></i> 探索雷达</span>
-                    <span class="loader" style="display: none;"></span>
-                </button>
-            </div>
-        </div>
-    </div>
+            /* ── 球点击/展开/收起 ── */
+            const onBallTouchStart = (e) => { pendingClick=true; if(ballTouchTimer) clearTimeout(ballTouchTimer); ballTouchTimer=setTimeout(()=>{ pendingClick=false; },200); };
+            const onBallTouchEnd = () => { if(ballTouchTimer) clearTimeout(ballTouchTimer); if(pendingClick && !hasMovedDuringDrag) expandFromBall(); pendingClick=false; };
+            const expandFromBall = () => { if(hasMovedDuringDrag){ hasMovedDuringDrag=false; return; } if(!isExpanded.value && currentSong.value){ isExpanded.value=true; nextTick(()=>{ refreshCardSize(); updateFloatingPosition(); }); startAutoTimer(); } };
+            const collapseByOverlay = () => { if(isExpanded.value){ isExpanded.value=false; if(autoTimer) clearTimeout(autoTimer); } };
 
-    <div class="mobile-overlay-scrim" id="mobileOverlayScrim"></div>
+            /* ── 自动关闭 ── */
+            const startAutoTimer = () => { if(autoTimer) clearTimeout(autoTimer); if(isExpanded.value && currentSong.value) autoTimer=setTimeout(()=>{ if(isExpanded.value && !isDraggingProgress.value) isExpanded.value=false; }, 9000); };
+            const resetAutoTimer = () => { if(autoTimer) clearTimeout(autoTimer); startAutoTimer(); };
+            const showMsg = (txt) => { msg.value=txt; setTimeout(()=>msg.value='',2000); };
+            const fmt = (sec) => isNaN(sec)?'00:00':`${Math.floor(sec/60)}:${String(Math.floor(sec%60)).padStart(2,'0')}`;
 
-    <audio id="audioPlayer" preload="metadata" playsinline></audio>
+            /* ── 搜索 ── */
+            const searchMusic = async () => { if(!keyword.value.trim()){ showMsg('输入歌名或歌手吧'); return; } loading.value=true; songs.value=[]; playError.value=''; autoPlayActive=false; isSequentialMode.value=false; isShuffleMode.value=false; try{ const res=await searchQQ(keyword.value); songs.value=res; if(!res.length) showMsg('未找到歌曲，换个关键词试试'); }catch(e){ showMsg('搜索失败，请重试'); }finally{ loading.value=false; } };
 
-<!-- 设置模态框 -->
-<div id="settingsModal" class="modal-overlay" aria-hidden="true">
-    <div class="modal-content settings-content">
-        <div class="modal-header">
-            <h2>设置</h2>
-            <button id="closeSettingsBtn" class="close-modal-btn" aria-label="关闭设置">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="modal-body">
-            <section class="settings-section">
-                <h3>探索雷达风格</h3>
-                <p class="settings-hint">选择您喜欢的音乐风格，探索雷达将从中为您推荐歌曲。</p>
-                <div id="radarGenreList" class="genre-grid">
-                    <!-- 风格复选框将通过 JS 动态生成 -->
-                </div>
-            </section>
-        </div>
-        <div class="modal-footer">
-            <button id="saveSettingsBtn" class="save-settings-btn">保存设置</button>
-        </div>
-    </div>
-</div>
+            /* ── 统一播放逻辑 ── */
+            const _scrollEls = () => document.querySelectorAll('.scroll-area');
+            const _saveScrolls = () => { const els=_scrollEls(); return { els, tops:[...els].map(el=>el.scrollTop) }; };
+            const _restoreScrolls = (snap) => { snap.els.forEach((el,i)=>{ el.scrollTop=snap.tops[i]||0; }); };
 
-<!-- 通知容器 -->
-<div id="notification" class="notification"></div>
+            const applySongPlay = async (song) => {
+                if(!song) return false;
+                const snap = _saveScrolls();
+                currentSong.value=song; playError.value='';
+                const url = await getCachedUrl(song.songmid, currentQuality.value);
+                if(!url){ playError.value='获取链接失败，可切换音质'; return false; }
+                currentPlayUrl.value=url;
+                await nextTick();
+                requestAnimationFrame(()=>_restoreScrolls(snap));
+                if(audioPlayer.value){ audioPlayer.value.load(); await audioPlayer.value.play().then(()=>{ isPlaying.value=true; addRecent(song); }).catch(()=>{ playError.value='播放失败，点击重试'; }); }
+                isExpanded.value=true;
+                nextTick(()=>{ refreshCardSize(); updateFloatingPosition(); });
+                startAutoTimer();
+                return true;
+            };
 
-<!-- 调试信息容器 -->
-<div id="debugInfo" class="debug-info"></div>
+            const playByIndex = async (index) => {
+                if(!playlist.value.length || index<0 || index>=playlist.value.length){ autoPlayActive=false; isSequentialMode.value=false; isShuffleMode.value=false; return false; }
+                const song=playlist.value[index]; if(!song) return false;
+                currentPlayIndex.value=index;
+                if(await applySongPlay(song)) return true;
+                return false;
+            };
+            const getNextIndex = (cur) => { if(!playlist.value.length) return -1; if(isShuffleMode.value){ if(playlist.value.length===1) return cur; let n; do{n=Math.floor(Math.random()*playlist.value.length);}while(n===cur); return n; } if(isSequentialMode.value){ let n=cur+1; return n>=playlist.value.length?-1:n; } return -1; };
+            const playNextAuto = async () => { if(!autoPlayActive) return; const ni=getNextIndex(currentPlayIndex.value); if(ni===-1){ autoPlayActive=false; isSequentialMode.value=false; isShuffleMode.value=false; showMsg('列表播放完毕'); return; } await playByIndex(ni,true); };
+            const onSongEnded = () => { isPlaying.value=false; if(autoPlayActive && playlist.value.length) playNextAuto(); else autoPlayActive=false; };
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="js/index.js"></script>
-<script>
-    if (window.__SOLARA_IS_MOBILE) {
-        const mobileScript = document.createElement('script');
-        mobileScript.src = 'js/mobile.js';
-        mobileScript.async = false;
-        mobileScript.defer = false;
-        document.body.appendChild(mobileScript);
-    }
-</script>
+            const _playFromList = async (song, list, sliceFrom) => {
+                if(!song) return;
+                autoPlayActive=false; isSequentialMode.value=false; isShuffleMode.value=false;
+                if(await applySongPlay(song, true)){
+                    const ci=list.value.findIndex(s=>s.id===song.id);
+                    if(ci!==-1){ const pl=sliceFrom?list.value.slice(ci):[...list.value]; if(pl.length>=1){ playlist.value=pl; currentPlayIndex.value=sliceFrom?0:ci; autoPlayActive=true; isSequentialMode.value=true; } }
+                }
+            };
+            const playSingleSong = (song) => _playFromList(song, songs, false);
+            const playFromHistory = (song) => _playFromList(song, historySongs, true);
+            const enableSequentialMode = () => { if(!songs.value.length){ showMsg('请先搜索歌曲'); return; } isShuffleMode.value=false; isSequentialMode.value=true; autoPlayActive=true; playlist.value=[...songs.value]; playByIndex(0,true); };
+            const enableShuffleMode = () => { if(!songs.value.length){ showMsg('请先搜索歌曲'); return; } isSequentialMode.value=false; isShuffleMode.value=true; autoPlayActive=true; playlist.value=[...songs.value]; playByIndex(Math.floor(Math.random()*playlist.value.length),true); };
+
+            /* ── 收藏/历史 ── */
+            const toggleFavorite = (song) => { if(!song) return; if(favorites.value.some(h=>h.id===song.id)){ favorites.value=favorites.value.filter(h=>h.id!==song.id); saveFavorites(); showMsg('已取消收藏'); }else{ favorites.value=[sanitizeSong(song),...favorites.value]; if(favorites.value.length>30) favorites.value.length=30; saveFavorites(); addRecent(song); showMsg('已收藏 '+song.title); } };
+                        const removeHistorySong = (songId) => { if(!songId) return; historySongs.value=historySongs.value.filter(s=>s.id!==songId); saveHistory(); showMsg('已从最近播放移除'); };
+            const clearHistory = () => { historySongs.value=[]; saveHistory(); showMsg('历史记录已清空'); };
+            const saveFavorites = () => { if(saveTimer) clearTimeout(saveTimer); saveTimer = setTimeout(() => { try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites.value.map(sanitizeSong))); } catch(e){} }, 500); };
+            const loadFavorites = () => { try { const s = localStorage.getItem(FAVORITES_KEY); if(s) favorites.value = JSON.parse(s).map(sanitizeSong); } catch(e){} };
+            const playFromFavorite = (song) => _playFromList(song, favorites, false);
+            const removeFavorite = (songId) => { if(!songId) return; favorites.value=favorites.value.filter(s=>s.id!==songId); saveFavorites(); showMsg('已从收藏移除'); };
+            const clearFavorites = () => { favorites.value=[]; saveFavorites(); showMsg('收藏已清空'); };
+            loadHistory();
+            loadFavorites();
+
+            /* ── 下载 ── */
+            const _doDownload = async (url, filename, timeout) => { const res=await axios.get(PROXY+url,{ responseType:'blob', timeout }); const blob=new Blob([res.data],{type:'audio/mpeg'}); const u=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=u; a.download=filename; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u); };
+            const downloadSongDirect = async (song) => { if(!song?.songmid){ showMsg('无可下载歌曲'); return; } try{ showMsg('开始获取下载链接..'); const url=await getCachedUrl(song.songmid, currentQuality.value); if(!url){ showMsg('获取链接失败，可切换音质'); return; } await _doDownload(url, song.title+' - '+song.artist+'.mp3', 45000); showMsg('下载完成: '+song.title); }catch(e){ showMsg(e?.code==='ECONNABORTED'?'下载超时，请切换网络后重试':'下载失败，请重试'); } };
+            const downloadSong = async () => { if(!currentPlayUrl.value||!currentSong.value){ showMsg('无可下载歌曲'); return; } downloading.value=true; try{ await _doDownload(currentPlayUrl.value, `${currentSong.value.title} - ${currentSong.value.artist}.mp3`, 30000); showMsg(`✅ 下载完成: ${currentSong.value.title}`); }catch(e){ showMsg('下载失败，请重试'); }finally{ downloading.value=false; resetAutoTimer(); } };
+
+            /* ── 音频事件 ── */
+            let timeUpdateRAF = 0;
+            const onLoaded = () => { if(audioPlayer.value) duration.value=fmt(audioPlayer.value.duration); };
+            const onTimeUpdate = () => { if(!audioPlayer.value?.duration || isDraggingProgress.value) return; if(timeUpdateRAF) return; timeUpdateRAF=requestAnimationFrame(()=>{ timeUpdateRAF=0; const a=audioPlayer.value; if(!a?.duration) return; currentTime.value=fmt(a.currentTime); progressPercent.value=(a.currentTime/a.duration)*100||0; }); };
+            const togglePlay = () => { if(audioPlayer.value){ if(isPlaying.value) audioPlayer.value.pause(); else audioPlayer.value.play().catch(()=>playError.value='播放失败'); isPlaying.value=!isPlaying.value; resetAutoTimer(); } };
+            const handleProgressClick = (e) => { if(!audioPlayer.value?.duration) return; const rect=e.currentTarget.getBoundingClientRect(); const p=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width)); audioPlayer.value.currentTime=p*audioPlayer.value.duration; currentTime.value=fmt(audioPlayer.value.currentTime); progressPercent.value=p*100; resetAutoTimer(); };
+            const startDragProgress = (e) => { e.preventDefault(); isDraggingProgress.value=true; if(autoTimer) clearTimeout(autoTimer); const update=(cx)=>{ if(!audioPlayer.value?.duration) return; const rect=document.querySelector('.progress-area')?.getBoundingClientRect(); if(!rect) return; const p=Math.max(0,Math.min(1,(cx-rect.left)/rect.width)); audioPlayer.value.currentTime=p*audioPlayer.value.duration; currentTime.value=fmt(audioPlayer.value.currentTime); progressPercent.value=p*100; }; const onMove=(me)=>{ const cx=me.clientX??me.touches?.[0]?.clientX; if(cx!=null) update(cx); }; const onEnd=()=>{ isDraggingProgress.value=false; document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onEnd); document.removeEventListener('touchmove',onMove); document.removeEventListener('touchend',onEnd); resetAutoTimer(); }; document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onEnd); document.addEventListener('touchmove',onMove); document.addEventListener('touchend',onEnd); };
+            const preventIfDragging = (e) => { if(isDraggingProgress.value) e.preventDefault(); };
+            const endDragProgress = () => { isDraggingProgress.value=false; resetAutoTimer(); };
+
+            /* ── 切换音质 ── */
+            const switchQuality = async (newQ) => { if(currentQuality.value===newQ) return; currentQuality.value=newQ; if(currentSong.value){ const newUrl=await getCachedUrl(currentSong.value.songmid, newQ); if(newUrl){ const was=isPlaying.value; currentPlayUrl.value=newUrl; await nextTick(); if(audioPlayer.value){ audioPlayer.value.load(); if(was) audioPlayer.value.play().catch(()=>{}); } }else{ showMsg('切换音质失败'); } } resetAutoTimer(); };
+            const refreshPlay = () => { if(currentSong.value) playSingleSong(currentSong.value); };
+
+            /* ── 全局事件 ── */
+            const collapseHandler = (e) => { if(!isExpanded.value) return; const fp=document.querySelector('.floating-player'); if(fp && !fp.contains(e.target)){ isExpanded.value=false; if(autoTimer) clearTimeout(autoTimer); } };
+            document.addEventListener('pointerdown',collapseHandler);
+            window.addEventListener('resize',updateFloatingPosition);
+            onUnmounted(()=>{ document.removeEventListener('pointerdown',collapseHandler); if(autoTimer) clearTimeout(autoTimer); if(rafId) cancelAnimationFrame(rafId); if(saveTimer) clearTimeout(saveTimer); });
+            nextTick(updateFloatingPosition);
+
+            return { keyword, songs, loading, currentSong, currentPlayUrl, playError, msg, downloading, currentQuality, qualities, defaultCover, extendedTags, tagColors, audioPlayer, isPlaying, currentTime, duration, progressPercent, isExpanded, isDraggingProgress, historySongs, favorites, activeTab, clearHistory, searchMusic, playSingleSong, playFromHistory, enableSequentialMode, enableShuffleMode, isShuffleMode, isSequentialMode, refreshPlay, downloadSong, toggleFavorite, removeHistorySong, playFromFavorite, removeFavorite, clearFavorites, downloadSongDirect, onLoaded, onTimeUpdate, togglePlay, onSongEnded, handleProgressClick, startDragProgress, preventIfDragging, endDragProgress, switchQuality, resetAutoTimer, startAutoTimer, floatingStyle, startDragFloater, startDragCard, collapseByOverlay, expandFromBall, onBallTouchStart, onBallTouchEnd };
+        } }).mount('#app');
+    </script>
 </body>
 </html>
