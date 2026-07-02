@@ -5,7 +5,7 @@
     <style>html,body{background:rgba(252,231,243,0.85) !important;}
         </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>过来人音乐 · 尽享听觉上的盛宴</title>
+    <title>过来人音乐 v2.5 · 尽享听觉上的盛宴</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
@@ -350,6 +350,25 @@
         const { createApp, ref, nextTick, onMounted, onUnmounted } = Vue;
         const PROXY = 'https://proxy.api.030101.xyz/';
         const GD_API = PROXY + 'https://music-api.gdstudio.xyz/api.php'; /* gd-studio 经代理(浏览器 CORS) */
+        /* ===== 新增音源(从全豆要聚合源 v4.1 提取改写, 2026-07-02) ===== */
+        const SUYIN_163_API='https://oiapi.net/api/Music_163';        /* 溯音网易: id直出链接 */
+        const SUYIN_KUWO_API='https://oiapi.net/api/Kuwo';            /* 溯音酷我: 关键词搜索直出链接(解酷我url空) */
+        /* 长青SVIP: 模板直拼URL(最稳, 多平台) */
+        const CHANGQING_TPL={
+            wy:'https://musicapi.haitangw.net/music/wy.php?type=mp3&id={id}&level={level}',
+            kw:'https://musicapi.haitangw.net/music/kw.php?type=mp3&id={id}&level={level}',
+            tx:'https://musicapi.haitangw.net/music/qq.php?type=mp3&id={id}&level={level}',
+            kg:'https://music.haitangw.cc/kgqq/kg.php?type=mp3&id={id}&level={level}',
+            mg:'https://music.haitangw.cc/musicapi/mg.php?type=mp3&id={id}&level={level}'
+        };
+        /* 念心SVIP: 模板直拼URL(备用多平台) */
+        const NIANXIN_TPL={
+            wy:'https://music.nxinxz.com/wy.php?id={id}&level={level}&type=mp3',
+            kw:'https://music.nxinxz.com/kw.php?id={id}&level={level}&type=mp3',
+            tx:'https://music.nxinxz.com/kgqq/tx.php?id={id}&level={level}&type=mp3',
+            kg:'https://music.nxinxz.com/kgqq/kg.php?id={id}&level={level}&type=mp3',
+            mg:'https://music.nxinxz.com/mg.php?id={id}&level={level}&type=mp3'
+        };
         /* gd-studio 网易搜索 */
         async function searchNetEase(q){
             try{
@@ -373,6 +392,32 @@
             }catch(_){ return null; }
         }
         /* gd-studio 网易歌词(备用歌词源) */
+        /* ===== 新音源: 溯音/长青/念心 (2026-07-02) ===== */
+        function _qToLevel(q){ return q==='high'?'lossless':(q==='standard'?'exhigh':'standard'); }
+        async function getUrlSuyinKuwo(song,quality){
+            try{ const br=quality==='high'?1:(quality==='standard'?5:7);
+                const kw=(song.title+' '+(song.artist||'')).trim();
+                const res=await axios.get(SUYIN_KUWO_API+'?msg='+encodeURIComponent(kw)+'&n=1&br='+br,{timeout:8000});
+                if(res&&res.data&&res.data.data&&res.data.data.url) return res.data.data.url;
+                return null; }catch(_){ return null; }
+        }
+        async function getUrlSuyinNetEase(song,quality){
+            try{ const id=song.url_id||song.songmid;
+                const res=await axios.get(SUYIN_163_API+'?id='+encodeURIComponent(id),{timeout:8000});
+                if(res&&res.data&&res.data.code===0&&res.data.data){ const it=Array.isArray(res.data.data)?res.data.data[0]:res.data.data; return (it&&it.url)||null; }
+                return null; }catch(_){ return null; }
+        }
+        function _tplUrl(song,quality,tpl){
+            try{ const plat=song.source==='wy'?'wy':(song.source==='kw'?'kw':(song.source==='kg'?'kg':(song.source==='mg'?'mg':'tx')));
+                const template=tpl[plat]; if(!template) return null;
+                const id=song.url_id||song.songmid; if(!id) return null;
+                return template.replace('{id}',encodeURIComponent(String(id))).replace('{level}',encodeURIComponent(_qToLevel(quality))); }catch(_){ return null; }
+        }
+        async function getUrlNew(song,quality){
+            if(song.source==='kw'){ let u=await getUrlSuyinKuwo(song,quality); if(u) return u; u=_tplUrl(song,quality,CHANGQING_TPL); if(u) return u; u=_tplUrl(song,quality,NIANXIN_TPL); return u; }
+            if(song.source==='wy'){ let u=await getUrlSuyinNetEase(song,quality); if(u) return u; u=_tplUrl(song,quality,CHANGQING_TPL); if(u) return u; u=_tplUrl(song,quality,NIANXIN_TPL); return u; }
+            return null;
+        }
         async function _gdNeteaseLyric(lyric_id){
             try{
                 const res=await axios.get(GD_API+'?types=lyric&source=netease&id='+encodeURIComponent(lyric_id),{timeout:10000});
@@ -407,14 +452,14 @@
                     /* 第一轮: 精确匹配同一首歌 */
                     for(const it of list){
                         if(songMatches(it,song)){
-                            const u = src==='qq' ? await getUrl(it,quality) : await getUrlGD(it,quality);
+                            const u = src==='qq' ? await getUrl(it,quality) : await getUrl(it,quality);
                             if(u){ return { song: Object.assign({}, it, { title:song.title, artist:song.artist }), url:u }; }
                         }
                     }
                     /* 第二轮: 退而取首条(同歌名) */
                     if(list.length>0){
                         const it=list[0];
-                        const u = src==='qq' ? await getUrl(it,quality) : await getUrlGD(it,quality);
+                        const u = src==='qq' ? await getUrl(it,quality) : await getUrl(it,quality);
                         if(u){ return { song: Object.assign({}, it, { title:song.title, artist:song.artist }), url:u }; }
                     }
                 }catch(_){}
@@ -438,7 +483,8 @@
         async function getUrl(songOrMid,quality){
             const song = (songOrMid && typeof songOrMid==='object') ? songOrMid : { source:'qq', songmid:String(songOrMid) };
             try{
-                if(song.source==='wy' || song.source==='kw'){ return await getUrlGD(song,quality); }
+                if(song.source==='kw'){ const nu=await getUrlNew(song,quality); if(nu) return nu; return await getUrlGD(song,quality); }
+                if(song.source==='wy'){ const gu=await getUrlGD(song,quality); if(gu) return gu; return await getUrlNew(song,quality); }
                 /* QQ 主音源 */
                 const songmid=song.songmid;
                 const levelMap={ low:'standard', standard:'exhigh', high:'lossless' };
